@@ -72,3 +72,52 @@
 - wb.save('`file path`')  # 注意如果是新建的表格，而file path已经存在，它会直接覆盖
 - 如果是用load_workbook()载入的工作簿，修改后**`记得保存!!!`**，保存时的file path可以任意，里面的原始内容还在，如果写原文件的路径，就会更新原文件
 - 类比open函数， 最后记得wb.close()
+
+## 4、补充
+
+- 单元格合并之后，整个的值只在左上第一格，其余单元格的值都是None
+
+- 在根据合并单元格的内容检索后面内容时：
+
+    ```python
+    def collect_class(cell_list):
+        li = []
+        for cell in cell_list:
+            if cell.value is not None:
+                li.append(cell)
+        return li[1:]  # 这里的意思是只返回班级，上面的表头不要（具体情况具体分析）
+    ```
+
+这样可以根据每个cell的row属性确定选择范围，再进行细分
+
+- 后面部分处理的实例：（有点乱，命名不好，我写的时候也有点懵）
+
+    ```python
+    # 开始查找并录入数据
+    def parse(class_cell_list, data):  # 传入班级列表和扣分数据
+        for cell in class_cell_list:
+            if cell.value in data[0]:
+                index = data[0].index(cell.value)
+                try:
+                    if '(' in data[1][index]:
+                        dormitory = data[1][index].strip('（')[0]
+                    else:
+                        dormitory = data[1][index]
+                except:
+                    dormitory = data[1][index]
+                i = 0
+                while i < 10:
+                    if ws1['B'+str(cell.row+i)].value == dormitory:
+                        row = str(cell.row+1)
+                        # 定位到目标后，检测是否已有值，有就要相加
+                        if ws1['C'+row].value is not None:
+                            ws1['C' + row].value += data[2][index]
+                        else:
+                            ws1['C' + row].value = data[2][index]
+                        data[0].pop(index)
+                        data[1].pop(index)
+                        data[2].pop(index)
+                        break
+                    else:
+                        i += 1
+    ```
