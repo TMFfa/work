@@ -1,40 +1,47 @@
+from datetime import datetime
 import openpyxl as op
 
-wb1 = op.load_workbook('demo1.xlsx')  # 周分表
-ws1 = wb1.active
-wb2 = op.load_workbook('source.xlsx')  # 个人扣分总表
-ws2 = wb2.active
+time1 = datetime.now()
+wb1 = op.load_workbook('高一男生宿舍周分.xlsx')  # 周分表******
+ws1 = wb1['1周']
+wb2 = op.load_workbook('高一男生宿舍个人扣分情况.xlsx')  # 个人扣分总表*********
+ws2 = wb2['1班']
+time2 = datetime.now()
+print(time2-time1)
 
 
+# 周分表的函数
 def collect_class(cell_list):
     li = []
     for cell in cell_list:
         if cell.value is not None:
             li.append(cell)
-    return li[1:]  # 这里的意思是只返回班级，上面的表头不要（具体情况具体分析）
+    return li[2:]  # 这里的意思是只返回班级，上面的表头不要（具体情况具体分析）*****
 
 
+# 个人扣分总表的函数
 def get_data(cell_list):
     li = []
     for cell in cell_list:
         if cell.value is not None:
             li.append(cell)
-    li = li[1:]  # 同上，只要除表头外的内容
+    li = li[3:]  # ****************同上，只要除表头外的内容, 如果是每周第一天，用3， 第二天用2
     data = [[], [], []]  # 班级，宿舍，扣分
     for cell in li:
         row = str(cell.row)
-        data[0].append(str(ws2['B'+row].value)+'班')  # 根据班级列返回其值
-        data[1].append(ws2['C'+row].value)  # 宿舍列
+        data[0].append(str(ws2['D'+row].value)+'班')  # 根据班级列返回其值********班级那一列的值
+        data[1].append(ws2['B'+row].value)  # 宿舍列的值*********
         data[2].append(cell.value)  # 扣分内容
     return data
 
 
-# 载入扣分内容
-ws2_cells = ws2['F']  # 扣分那一列
+# 载入扣分内容，也就是个人扣分表
+ws2_cells = ws2['E']  # 扣分那一列***********##########
 ws2_data = get_data(ws2_cells)
 
+
 # 周分表班级列表（注意里面的值是‘x班’）
-class_cells = ws1['A']
+class_cells = ws1['A']  # 周分表班级列*******
 class_cells = collect_class(class_cells)
 
 
@@ -75,6 +82,6 @@ def parse(class_cell_list, data):
 
 parse(class_cells, ws2_data)
 
-wb1.save('demo1.xlsx')
+wb1.save('demo1.xlsx')  # 保存路径，可以随便写，确认之后再复制到正表
 wb1.close()
 wb2.close()

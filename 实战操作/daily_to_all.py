@@ -1,4 +1,4 @@
-# 在source.xlsx表中添加扣分
+# 添加扣分到个人扣分总表，注意扣分时不要有表头
 import openpyxl as op
 
 
@@ -15,12 +15,12 @@ def parse_data(dt):
 def parse_cell(cell):
     index = dormitory.index(cell.value)
     row = str(cell.row)
-    num = ws2['D'+row].value
+    num = ws2['C'+row].value  # 床号那一列********
     if num == nums[index]:
-        if ws2['F'+row].value is not None:  # 每次必改，要扣分的那一列***********************###########################
-            ws2['F' + row].value += marks[index]  # 每次必改，要扣分的那一列***********************##############
+        if ws2['E'+row].value is not None:  # 每次必改，要扣分的那一列***********************########################
+            ws2['E' + row].value += marks[index]  # 每次必改，要扣分的那一列***********************##############
         else:
-            ws2['F'+row].value = marks[index]  # 每次必改，要扣分的那一列***********************##############################
+            ws2['E'+row].value = marks[index]  # 每次必改，要扣分的那一列***********************######################
         dormitory.pop(index)
         nums.pop(index)
         marks.pop(index)
@@ -30,9 +30,9 @@ def parse_cell(cell):
 
 # 经测试，打开这两个文件的速度有点慢
 wb1 = op.load_workbook('today.xlsx')
-wb2 = op.load_workbook('source.xlsx')
-ws1 = wb1['today']
-ws2 = wb2['个人扣分']
+wb2 = op.load_workbook('高一男生宿舍个人扣分情况.xlsx')
+ws1 = wb1.active
+ws2 = wb2['1班']
 
 # 将扣分数据按顺序排入列表，输入时也要按顺序
 datas = []
@@ -52,7 +52,7 @@ for data in datas:
 print(dormitory, nums, marks)
 
 # 在总表中搜索宿舍和床号，确认后写入，用parse_cell()确认
-dor = ws2['C']
+dor = ws2['B']  # 宿舍那一列**********************
 for cell in dor:
     if cell.value in dormitory:
         parse_cell(cell)
@@ -60,6 +60,6 @@ for cell in dor:
         pass
 
 # 关闭文件， 艹，记得保存
-wb2.save('source.xlsx')
+wb2.save('高一男生宿舍个人扣分情况.xlsx')
 wb1.close()
 wb2.close()
